@@ -60,6 +60,5 @@ jobs:
         with:
           args: set image deployment/your_deployment_name your_container_name=${{ secrets.DOCKER_USERNAME }}/your_image_name:latest
 
-volumes:
-  postgres-data:
+
 
