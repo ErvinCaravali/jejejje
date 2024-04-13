@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        run: git checkout main
-
       - name: Set up Python
         run: |
           sudo apt update
