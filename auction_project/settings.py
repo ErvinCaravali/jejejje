@@ -82,7 +82,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'Ec94',
         'HOST': 'localhost',  # Cambia esto si PostgreSQL está en un host diferente
-        'PORT': '5432',       # Cambia esto si PostgreSQL está escuchando en un puerto diferent
+        'PORT': '5432',       # Cambia esto si PostgreSQL está escuchando en un puerto diferen
     }
 }
 
