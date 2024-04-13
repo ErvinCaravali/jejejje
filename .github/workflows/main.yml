@@ -23,7 +23,6 @@ jobs:
         format: "${major}.${minor}.${patch}-prerelease${increment}"
       id: version
             
-        
     - name: Docker login
       env: 
         DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -31,7 +30,7 @@ jobs:
         NEW_VERSION: ${{ steps.version.outputs.version }}
       run: |
         echo "Inicial login"
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USER}" --password-stdin
         echo "Fin del login"
         echo "New version: $NEW_VERSION!!!"
     
@@ -41,6 +40,7 @@ jobs:
       run: |
         docker build -t eviltomato/docker-perseus.reservation.manager:$NEW_VERSION .
         docker build -t eviltomato/docker-perseus.reservation.manager:latest .
+        
     - name: Push Docker Image
       env:
         NEW_VERSION: ${{ steps.version.outputs.version }}
