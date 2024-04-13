@@ -1,3 +1,4 @@
+
 name: Build and Deploy Docker Image
 
 on:
@@ -37,6 +38,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Flexibiliza el rango de versiones de Django en requirements.txt
+          sed -i 's/Django==3.2.12/Django>=3.2.0/g' requirements.txt
           pip install -r requirements.txt
 
       - name: Build Docker image
@@ -54,7 +57,5 @@ jobs:
         run: |
           echo "Pushing Docker image to Docker Hub..."
           docker push ${{ secrets.DOCKER_USERNAME }}/your_image_name:latest
-
-
 
 
