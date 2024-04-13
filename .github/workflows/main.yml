@@ -22,6 +22,11 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Install Docker
+        run: |
+          sudo apt update
+          sudo apt install -y docker.io
+
       - name: Build Docker image
         run: |
           echo "Building Docker image..."
@@ -34,4 +39,4 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: |
           echo "Pushing Docker image to Docker Hub..."
-          docker push ${{ secrets.DOCKER_USERNAME }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/your_image_name:latest
