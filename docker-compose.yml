@@ -2,25 +2,19 @@ version: '3'
 
 services:
   web:
-    build: .
-    command: >
-      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: tu_usuario_dockerhub/tu_repositorio:latest
     ports:
       - "8000:8000"
-    volumes:
-      - .:/code
+    command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
-    environment:
-      - DB_HOST=db
-      - DB_NAME=projecto
-      - DB_USER=postgres
-      - DB_PASSWORD=Ec94
-    tty: false  # Deshabilita la emulación de termina
 
   db:
     image: postgres:latest
     environment:
-      - POSTGRES_DB=projecto
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Ec94
+      POSTGRES_DB: projecto
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Ec94

@@ -6,14 +6,15 @@ on:
       - main
 
 jobs:
-  build:
+  build_and_push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and run services
+      - name: Build and push images
         run: |
-          docker-compose up --build -d
-          docker-compose exec web python manage.py migrate
+          docker-compose build
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker-compose push
