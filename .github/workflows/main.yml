@@ -15,7 +15,8 @@ jobs:
 
       - name: Read .env file
         run: |
-          export $(cat .env | xargs)
+         export $(grep -v '^#' .env | xargs)
+
         shell: bash
 
       - name: Build and push Docker images
