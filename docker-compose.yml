@@ -4,7 +4,7 @@ services:
   web:
     build: 
       dockerfile: Dockerfile
-    image: ${{ secrets.DOCKER_USERNAME }}/mywebapp:latest
+    image: ${DOCKER_USERNAME}/mywebapp:latest
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
