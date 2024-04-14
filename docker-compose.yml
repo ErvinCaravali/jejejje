@@ -16,7 +16,7 @@ services:
       - DB_NAME=projecto
       - DB_USER=postgres
       - DB_PASSWORD=Ec94
-    tty: false  # Deshabilita la emulación de terminal
+    tty: false  # Deshabilita la emulación de termina
 
   db:
     image: postgres:latest
