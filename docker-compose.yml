@@ -3,7 +3,12 @@ version: '3'
 services:
   web:
     build:
-      context: .
+      image: ervincaravaliibarra/web:latest
+      # Puedes agregar otras etiquetas aquí si lo deseas
+      # image: tu_usuario/tu_imagen:otra_etiqueta
+      # image: tu_usuario/tu_imagen:versión_1.0
+      # image: tu_usuario/tu_imagen:desarrollo
+
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
