@@ -24,7 +24,7 @@ jobs:
       - name: Tag Docker images
         run: |
           echo "Tagging Docker images..."
-          docker tag your_image_name:latest ervincaravaliibarra/projecto:tagname
+          docker tag auction_project_web:latest ervincaravaliibarra/projecto:tagname
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
