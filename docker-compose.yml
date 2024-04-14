@@ -2,9 +2,8 @@ version: '3'
 
 services:
   web:
-    build:
-      dockerfile: Dockerfile
-      context: ./auction_project
+    build: .
+    
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
@@ -17,8 +16,8 @@ services:
       - DB_NAME=projecto
       - DB_USER=postgres
       - DB_PASSWORD=Ec94
-    stdin_open: true
-    tty: true
+    stdin_open: true  # Abre el stdin en el contenedor
+    tty: true         # Permite la emulación de terminal
 
   db:
     image: postgres:latest
