@@ -31,4 +31,4 @@ jobs:
       - name: Push Docker images to Docker Hub
         run: |
           echo "Pushing Docker images to Docker Hub..."
-          docker push ervincaravaliibarra/my_image_tag
+          docker-compose -f auction_project/docker-compose.yml push
