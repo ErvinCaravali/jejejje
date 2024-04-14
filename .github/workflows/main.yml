@@ -15,5 +15,5 @@ jobs:
 
       - name: Build and run services
         run: |
-          docker-compose up --build --detach 
+          docker-compose up --build 
           docker-compose exec web python manage.py migrate
