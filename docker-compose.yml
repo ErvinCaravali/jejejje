@@ -16,8 +16,6 @@ services:
       - DB_NAME=projecto
       - DB_USER=postgres
       - DB_PASSWORD=Ec94
-    stdin_open: true  # Abre el stdin en el contenedor
-    tty: true         # Permite la emulación de terminal
 
   db:
     image: postgres:latest
