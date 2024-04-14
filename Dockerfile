@@ -17,6 +17,9 @@ COPY requirements.txt /code/
 # Instala las dependencias del proyecto especificadas en requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Aplica las migraciones pendientes
+RUN python manage.py migrate
+
 # Expone el puerto 8000 para que pueda ser accesible desde fuera del contenedor
 EXPOSE 8000
 
