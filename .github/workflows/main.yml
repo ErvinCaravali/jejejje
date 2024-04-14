@@ -30,4 +30,4 @@ jobs:
       - name: Push Docker images to Docker Hub
         run: |
           echo "Pushing Docker images to Docker Hub..."
-          docker-compose push
+          docker-compose pus
