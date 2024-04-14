@@ -52,14 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-
-
 ROOT_URLCONF = 'auction_project.urls'
-
-
-
-
 
 TEMPLATES = [
     {
@@ -89,7 +82,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'projecto'),
         'USER': os.environ.get('DB_USER', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASSWORD', 'Ec94'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
