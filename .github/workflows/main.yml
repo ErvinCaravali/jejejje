@@ -13,9 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and run services
+      - name: Set up Docker Compose
         run: |
-          docker-compose up --build 
+          docker-compose up --build -d
+          docker-compose exec web sh -c "while ! nc -z db 5432; do sleep 1; done"
 
       - name: Apply Django migrations
         run: |
