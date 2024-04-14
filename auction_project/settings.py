@@ -52,7 +52,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+
+
 ROOT_URLCONF = 'auction_project.urls'
+
+
+
+
 
 TEMPLATES = [
     {

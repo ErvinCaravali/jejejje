@@ -5,24 +5,30 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: ervincaravaliibarra/four:latest
+    image: ervincaravaliibarra/galeria:latest  # Etiqueta la imagen con tu usuario de Docker Hub
+    command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
-    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
     depends_on:
       - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=projecto
+      - DB_USER=postgres
+      - DB_PASSWORD=Ec94
+    stdin_open: true  # Abre el stdin en el contenedor
+    tty: true         # Permite la emulación de terminal
 
   db:
-    image: postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    image: ervincaravaliibarra/bdgaleria:latest  # Etiqueta la imagen con tu usuario de Docker Hub
     environment:
-      POSTGRES_DB: projecto
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Ec94
+      - POSTGRES_DB=projecto
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Ec94
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-
+      - "5433:5432"  # Puedes cambiar el primer número al puerto deseado en tu host
