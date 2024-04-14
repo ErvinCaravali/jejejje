@@ -13,15 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Compose
+      - name: Build and run services
         run: |
           docker-compose up --build 
-          while ! docker-compose exec web python manage.py showmigrations --plan | grep "\[ \]" >/dev/null; do
-            echo "There are pending migrations. Press CTRL-C to interrupt and apply migrations manually."
-            sleep 5
-          done
-          docker-compose exec web python manage.py migrate
-
-      - name: Show Docker Compose logs
-        run: |
-          docker-compose logs
+         
