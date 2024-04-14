@@ -13,18 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Load environment variables from .env
+      - name: Read .env file
         run: |
-          source .env
+          export $(cat .env | xargs)
+        shell: bash
 
       - name: Build and push Docker images
         env:
-          DOCKER_USERNAME: ${DOCKER_USERNAME}
-          DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
           docker-compose build
           docker-compose push
