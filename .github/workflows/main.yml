@@ -13,10 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and run services
-        run: |
-          docker-compose up --build 
-
+      
       - name: Apply Django migrations
         run: |
           docker-compose exec web python manage.py migrate
+      - name: Build and run services
+        run: |
+          docker-compose up --build 
