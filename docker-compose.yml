@@ -2,9 +2,7 @@ version: '3'
 
 services:
   web:
-    build: 
-      dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME}/mywebapp:latest
+    build: .
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
@@ -17,6 +15,8 @@ services:
       - DB_NAME=projecto
       - DB_USER=postgres
       - DB_PASSWORD=Ec94
+    stdin_open: true  # Abre el stdin en el contenedor
+    tty: true         # Permite la emulación de terminal
 
   db:
     image: postgres:latest
