@@ -16,12 +16,11 @@ jobs:
       - name: Set up Docker Compose
         run: |
           docker-compose up --build 
-          docker-compose exec web sh -c "while ! nc -z db 5432; do sleep 1; done"
-
-      - name: Apply Django migrations
-        run: |
+          while ! docker-compose exec web python manage.py showmigrations --plan | grep "\[ \]" >/dev/null; do
+            echo "There are pending migrations. Press CTRL-C to interrupt and apply migrations manually."
+            sleep 5
+          done
           docker-compose exec web python manage.py migrate
-        continue-on-error: true  # Continuar si hay un error
 
       - name: Show Docker Compose logs
         run: |
