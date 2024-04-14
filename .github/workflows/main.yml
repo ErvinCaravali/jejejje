@@ -15,7 +15,7 @@ jobs:
 
       - name: Set up Docker Compose
         run: |
-          docker-compose up --build -d
+          docker-compose up --build 
           docker-compose exec web sh -c "while ! nc -z db 5432; do sleep 1; done"
 
       - name: Apply Django migrations
