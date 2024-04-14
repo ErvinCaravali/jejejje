@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=projecto
+      - DB_USER=postgres
+      - DB_PASSWORD=Ec94
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=projecto
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Ec94
+
