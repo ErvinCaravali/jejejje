@@ -1,3 +1,62 @@
+-- Crear una tabla para almacenar las subastas
+CREATE TABLE Auctions (
+    auction_id SERIAL PRIMARY KEY,
+    auction_name VARCHAR(255) NOT NULL,
+    auction_description TEXT,
+    start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_date TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'active'
+);
+
+-- Crear una tabla para almacenar las obras de arte
+CREATE TABLE Artworks (
+    artwork_id SERIAL PRIMARY KEY,
+    auction_id INT,
+    title VARCHAR(255) NOT NULL,
+    artist VARCHAR(255) NOT NULL,
+    year_created INT,
+    dimensions VARCHAR(50),
+    material VARCHAR(100),
+    genre VARCHAR(100),
+    description TEXT,
+    minimum_bid DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(20) DEFAULT 'active',
+    CONSTRAINT fk_auction_id FOREIGN KEY (auction_id) REFERENCES Auctions(auction_id)
+);
+
+-- Crear una tabla para almacenar los clientes
+CREATE TABLE Customers (
+    customer_id SERIAL PRIMARY KEY,
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    document_type VARCHAR(50),
+    document_number VARCHAR(50),
+    UNIQUE (customer_id)
+);
+
+-- Crear una tabla para almacenar las ofertas
+CREATE TABLE Bids (
+    bid_id SERIAL PRIMARY KEY,
+    auction_id INT,
+    artwork_id INT,
+    customer_id INT,
+    bid_value DECIMAL(10, 2) NOT NULL,
+    bid_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (auction_id) REFERENCES Auctions(auction_id),
+    FOREIGN KEY (artwork_id) REFERENCES Artworks(artwork_id),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id),
+    UNIQUE (bid_id)
+);
+
+-- Crear una tabla para almacenar los administradores
+CREATE TABLE Admins (
+    admin_id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    UNIQUE (admin_id)
+);
+
 -- Llenar la tabla Auctions con datos de ejemplo
 INSERT INTO Auctions (auction_name, auction_description, start_date, end_date, status)
 VALUES
@@ -73,3 +132,87 @@ VALUES
     ('admin9@example.com', 'password9'),
     ('admin10@example.com', 'password10');
 
+
+
+-- Llenar la tabla Auctions con datos de ejemplo
+
+-- Ver los datos de la tabla Auctions
+SELECT * FROM Auctions;
+
+-- Ver los datos de la tabla Artworks
+SELECT * FROM Artworks;
+
+-- Ver los datos de la tabla Customers
+SELECT * FROM Customers;
+
+-- Ver los datos de la tabla Bids
+SELECT * FROM Bids;
+
+-- Ver los datos de la tabla Admins
+SELECT * FROM Admins;
+
+
+SELECT * FROM Auctions WHERE status = 'active';
+SELECT * FROM Artworks WHERE auction_id = 1; -- Reemplaza 1 con el ID de la subasta específica
+SELECT * FROM Bids WHERE artwork_id = 1; -- Reemplaza 1 con el ID de la obra de arte específica
+SELECT * FROM Bids WHERE customer_id = 3; -- Reemplaza 1 con el ID del cliente específico
+
+SELECT DISTINCT a.*
+FROM Auctions a
+INNER JOIN Artworks aw ON a.auction_id = aw.auction_id
+INNER JOIN Bids b ON aw.artwork_id = b.artwork_id
+WHERE b.customer_id = 1; -- Reemplaza 1 con el ID del cliente específico
+
+SELECT * FROM Auctions WHERE end_date < CURRENT_TIMESTAMP;
+SELECT COUNT(*) AS total_bids FROM Bids WHERE auction_id = 1; -- Reemplaza 1 con el ID de la subasta específica
+SELECT c.full_name AS customer_name, MAX(bid_value) AS highest_bid
+FROM Bids b
+INNER JOIN Customers c ON b.customer_id = c.customer_id
+WHERE b.auction_id = 1 -- Reemplaza 1 con el ID de la subasta específica
+GROUP BY c.full_name;
+
+
+
+
+------
+-- Verificar las subastas sin obras de arte asociadas
+SELECT a.auction_id, a.auction_name
+FROM Auctions a
+LEFT JOIN Artworks aw ON a.auction_id = aw.auction_id
+WHERE aw.artwork_id IS NULL;
+
+-- Verificar las obras de arte sin subastas asociadas
+SELECT aw.artwork_id, aw.title
+FROM Artworks aw
+LEFT JOIN Auctions a ON aw.auction_id = a.auction_id
+WHERE a.auction_id IS NULL;
+
+-- Verificar las ofertas sin subastas asociadas
+SELECT b.bid_id
+FROM Bids b
+LEFT JOIN Auctions a ON b.auction_id = a.auction_id
+WHERE a.auction_id IS NULL;
+
+-- Verificar las ofertas sin obras de arte asociadas
+SELECT b.bid_id
+FROM Bids b
+LEFT JOIN Artworks aw ON b.artwork_id = aw.artwork_id
+WHERE aw.artwork_id IS NULL;
+
+-- Verificar las ofertas sin clientes asociados
+SELECT b.bid_id
+FROM Bids b
+LEFT JOIN Customers c ON b.customer_id = c.customer_id
+WHERE c.customer_id IS NULL;
+
+------
+-- Verificar las ofertas con valores de oferta menores que el precio mínimo
+SELECT b.bid_id, b.bid_value, aw.minimum_bid
+FROM Bids b
+INNER JOIN Artworks aw ON b.artwork_id = aw.artwork_id
+WHERE b.bid_value < aw.minimum_bid;
+
+-- Verificar las subastas con fecha de inicio posterior a la fecha de finalización
+SELECT auction_id, auction_name, start_date, end_date
+FROM Auctions
+WHERE start_date > end_date;

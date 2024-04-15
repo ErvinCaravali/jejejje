@@ -5,7 +5,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: ervincaravaliibarra/galeria-4:latest
+    image: ervincaravaliibarra/galeria-5:latest
     restart: always
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
@@ -26,7 +26,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.db
-    image: ervincaravaliibarra/bdgaleria-4:latest
+    image: ervincaravaliibarra/bdgaleria-5:latest
     environment:
       - POSTGRES_DB=projecto
       - POSTGRES_USER=postgres
