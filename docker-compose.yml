@@ -6,6 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: ervincaravaliibarra/galeria-4:latest
+    restart: always
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
@@ -33,7 +34,17 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - db_data_volume:/var/lib/postgresql/data/
+      - db_data_volume:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ervin.caravali@correounivalle.edu.co
+      PGADMIN_DEFAULT_PASSWORD: Ec94
+    ports:
+      - "90:80"
+    depends_on:
+      - db
 
 volumes:
   db_data_volume:
