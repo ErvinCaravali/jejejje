@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Crear la red si aún no existe
+docker network inspect auction_project_mi-red >/dev/null 2>&1 || docker network create auction_project_mi-red
+
 # Array que contiene los nombres de las tablas que se verificarán
 tables=("auctions" "artworks" "customers" "bids" "admins")
 
