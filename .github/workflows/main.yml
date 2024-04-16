@@ -7,7 +7,7 @@ on:
 
 jobs:
   verify_database_population:
-    runs-on: alpine:20240329
+    runs-on: ubuntu:noble-20240407.1
 
     steps:
       - name: Checkout code
@@ -28,7 +28,7 @@ jobs:
           exit 1
 
   build_and_push:
-    runs-on: alpine:20240329
+    runs-on: ubuntu:noble-20240407.1
     steps:
       - name: Build and push images
         env:
