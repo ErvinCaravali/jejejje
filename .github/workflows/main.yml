@@ -27,7 +27,7 @@ jobs:
 
       - name: Verify database population
         id: verify_db_pop
-        run: docker exec -i db ./auction_app/verify_database.sh
+        run: ./auction_app/verify_database.sh
 
       - name: Check verification status
         if: steps.verify_db_pop.outputs.populated == 'true'
