@@ -6,9 +6,18 @@ on:
       - main
 
 jobs:
-  verify_database_population:
+  start_db_container:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Start DB container
+        run: docker-compose up -d db
 
+  verify_database_population:
+    needs: start_db_container
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -16,12 +25,9 @@ jobs:
       - name: Set execute permissions
         run: chmod +x ./auction_app/verify_database.sh
 
-
       - name: Verify database population
         id: verify_db_pop
-        run: docker exec -i bd bash /auction_app/verify_database.sh
-
-
+        run: docker exec -i db ./auction_app/verify_database.sh
 
       - name: Check verification status
         if: steps.verify_db_pop.outputs.populated == 'true'
@@ -35,7 +41,6 @@ jobs:
 
   build_and_push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
