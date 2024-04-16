@@ -10,11 +10,11 @@ container_id=$(docker run -d -p 5433:5432 --name db --network mi-red ervincarava
 sleep 10
 
 # Consulta SQL para contar registros en cada tabla
-count_auctions=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM auctions;")
-count_artworks=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM artworks;")
-count_customers=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM customers;")
-count_bids=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM bids;")
-count_admins=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM admins;")
+count_auctions=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM Auctions;")
+count_artworks=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM Artworks;")
+count_customers=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM Customers;")
+count_bids=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM Bids;")
+count_admins=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM Admins;")
 
 # Verificar si alguna tabla está vacía
 if [[ "$count_auctions" -eq 0 || "$count_artworks" -eq 0 || "$count_customers" -eq 0 || "$count_bids" -eq 0 || "$count_admins" -eq 0 ]]; then
