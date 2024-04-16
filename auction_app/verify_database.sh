@@ -1,4 +1,5 @@
-#!/bin/bas
+#!/bin/bash
+
 
 tables=("Auctions" "Artworks" "Customers" "Bids" "Admins")
 populated=true
