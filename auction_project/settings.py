@@ -73,7 +73,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'auction_project.wsgi.application'
 
 
-# Database
+# Databas
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
