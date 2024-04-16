@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Script para verificar la población de la base de datos
-# Este script realiza consultas SQL para contar el número de registros en cada tabla
-
 tables=("Auctions" "Artworks" "Customers" "Bids" "Admins")
 populated=true
 
@@ -14,4 +11,8 @@ for table in "${tables[@]}"; do
     fi
 done
 
-echo "::set-output name=populated::$populated"
+if [ "$populated" = true ]; then
+    echo "true"
+else
+    echo "false"
+fi
