@@ -11,7 +11,7 @@ WORKDIR /code
 # Copia todo el contenido del repositorio al directorio de trabajo del contenedor
 COPY . /code/
 
-# Copia el archivo requirements.txt al directorio de trabajo
+# Copia el archivo requirements.txt al directorio de traba
 COPY requirements.txt /code/
 
 # Instala las dependencias del proyecto especificadas en requirements.txt
