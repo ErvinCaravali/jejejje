@@ -1,7 +1,7 @@
 """
 WSGI config for auction_project project.
 
-It exposes the WSGI callable as a module-level variable named ``applicati``.
+It exposes the WSGI callable as a module-level variable named ``applicat``.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/
