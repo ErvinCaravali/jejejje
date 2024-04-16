@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Crear la red si aún no existe
+# Crear la red si aún no exist
 docker network inspect auction_project_mi-red >/dev/null 2>&1 || docker network create auction_project_mi-red
 
 # Iniciar un contenedor temporal basado en la imagen especificada
