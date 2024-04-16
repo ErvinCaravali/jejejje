@@ -6,17 +6,9 @@ on:
       - main
 
 jobs:
-  start_db_container:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Start DB container
-        run: docker-compose up -d db
-
+  
   verify_database_population:
-    needs: start_db_container
+    
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
