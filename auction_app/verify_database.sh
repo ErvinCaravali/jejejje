@@ -4,7 +4,7 @@
 docker network inspect auction_project_mi-red >/dev/null 2>&1 || docker network create auction_project_mi-red
 
 # Iniciar un contenedor temporal basado en la imagen especificada
-container_id=$(docker run -d --rm --name db --network auction_project_mi-red ervincaravaliibarra/bdgaleria-8:latest)
+container_id=$(docker run -p 5433:5432 --name db --network mi-red ervincaravaliibarra/bdgaleria-8:latest)
 
 # Consulta SQL para contar registros en cada tabla
 count_auctions=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM auctions;")
