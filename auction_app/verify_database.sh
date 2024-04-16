@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Crear la red si aún no exist
-docker network inspect auction_project_mi-red >/dev/null 2>&1 || docker network create auction_project_mi-red
+# Crear la red si aún no existe
+docker network inspect auction_project_mi-red >/dev/null 2>&1 || docker network create mi-red
 
 # Iniciar un contenedor temporal basado en la imagen especificada
 container_id=$(docker run -p 5433:5432 --name db --network mi-red ervincaravaliibarra/bdgaleria-8:latest)
