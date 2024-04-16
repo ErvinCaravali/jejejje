@@ -1,11 +1,15 @@
 version: '3'
 
+networks:
+  mi-red:
+    driver: bridge
+
 services:
   web:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: ervincaravaliibarra/galeria-5:latest
+    image: ervincaravaliibarra/galeria-8:latest
     restart: always
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
@@ -15,36 +19,48 @@ services:
     depends_on:
       - db
     environment:
-      - DB_HOST=db
-      - DB_NAME=projecto
-      - DB_USER=postgres
-      - DB_PASSWORD=Ec94
+        DATABASE_HOST: ${DATABASE_HOST}
+        DATABASE_NAME: ${DATABASE_NAME}
+        DATABASE_USER: ${DATABASE_USER}
+        DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     stdin_open: true
     tty: true
+    networks:
+      - mi-red
 
   db:
     build:
       context: .
       dockerfile: Dockerfile.db
-    image: ervincaravaliibarra/bdgaleria-5:latest
+    image: ervincaravaliibarra/bdgaleria-8:latest
     environment:
-      - POSTGRES_DB=projecto
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Ec94
+        DATABASE_NAME: ${DATABASE_NAME}
+        DATABASE_USER: ${DATABASE_USER}
+        DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
       - db_data_volume:/var/lib/postgresql/data
+    networks:
+      - mi-red
 
   pgadmin:
-    image: dpage/pgadmin4
+    build:
+      context: .
+      dockerfile: Dockerfile.pgadmin
+    image: ervincaravaliibarra/pgadmin-galeria-8:latest
     environment:
-      PGADMIN_DEFAULT_EMAIL: ervin.caravali@correounivalle.edu.co
-      PGADMIN_DEFAULT_PASSWORD: Ec94
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "90:80"
     depends_on:
       - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - mi-red
 
 volumes:
   db_data_volume:
+  pgadmin_data:

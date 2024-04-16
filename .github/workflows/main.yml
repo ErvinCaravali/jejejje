@@ -1,18 +1,35 @@
-name: Docker Compose
+name: Verify database population
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
-  build_and_push:
-    runs-on: ubuntu-latest
+  verify_database_population:
+    runs-on: alpine:20240329
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Verify database population
+        id: verify_db_pop
+        run: bash verify_database.sh
+
+      - name: Check verification status
+        if: steps.verify_db_pop.outputs.populated == 'true'
+        run: echo "All tables are populated. Continue with the workflow."
+
+      - name: Verification failed
+        if: steps.verify_db_pop.outputs.populated == 'false'
+        run: |
+          echo "One or more tables are not populated. Halting the workflow."
+          exit 1
+
+  build_and_push:
+    runs-on: alpine:20240329
+    steps:
       - name: Build and push images
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -21,6 +38,3 @@ jobs:
           docker-compose build
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           docker-compose push
-          docker-compose up -d db  # Iniciar el contenedor de la base de datos en segundo plano
-          sleep 10  # Esperar 10 segundos para que el contenedor se inicie completamente
-          docker-compose ps  # Verificar el estado de los contenedores
