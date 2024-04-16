@@ -35,5 +35,5 @@ if [ "$populated" = true ]; then
     exit 0  # Indica que la verificación fue exitosa
 else
     echo "One or more tables are not populated."
-    exit 1  # Indica que la verificación falló
+    exit 1  # Indica que la verificación fall
 fi
