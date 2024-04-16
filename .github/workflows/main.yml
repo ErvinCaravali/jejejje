@@ -1,11 +1,35 @@
-name: Docker Compose
+name: push
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
 jobs:
+  verify_database_population:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set execute permissions
+        run: chmod +x ./auction_project/.github/workflows/verify_database.sh
+
+      - name: Verify database population
+        id: verify_db_pop
+        run: ./auction_project/.github/workflows/verify_database.sh
+
+      - name: Check verification status
+        if: steps.verify_db_pop.outputs.populated == 'true'
+        run: echo "All tables are populated. Continue with the workflow."
+
+      - name: Verification failed
+        if: steps.verify_db_pop.outputs.populated == 'false'
+        run: |
+          echo "One or more tables are not populated. Halting the workflow."
+          exit 1
+
   build_and_push:
     runs-on: ubuntu-latest
 
@@ -21,6 +45,3 @@ jobs:
           docker-compose build
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           docker-compose push
-          docker-compose up -d db  # Iniciar el contenedor de la base de datos en segundo plano
-          sleep 10  # Esperar 10 segundos para que el contenedor se inicie completamente
-          docker-compose ps  # Verificar el estado de los contenedores
