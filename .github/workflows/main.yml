@@ -6,28 +6,7 @@ on:
       - main
 
 jobs:
-/*
-  verify_database_population:
-    runs-on: ubuntu:noble-20240407.1
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Verify database population
-        id: verify_db_pop
-        run: bash verify_database.sh
-
-      - name: Check verification status
-        if: steps.verify_db_pop.outputs.populated == 'true'
-        run: echo "All tables are populated. Continue with the workflow."
-
-      - name: Verification failed
-        if: steps.verify_db_pop.outputs.populated == 'false'
-        run: |
-          echo "One or more tables are not populated. Halting the workflow."
-          exit 1
-  */
   build_and_push:
     runs-on: ubuntu:noble-20240407.1
     steps:
