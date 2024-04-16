@@ -2,7 +2,7 @@
 
 FROM postgres:16.2-bullseye
 
-# Establecer variables de entorno para la base de da
+# Establecer variables de entorno para la base 
 ENV POSTGRES_DB=projecto
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=Ec94
