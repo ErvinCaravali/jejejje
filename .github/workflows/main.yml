@@ -14,11 +14,13 @@ jobs:
         uses: actions/checkout@v2
       
       - name: Set execute permissions
-        run: chmod +x ./auction_project/.github/workflows/verify_database.sh
+        run: chmod +x ./auction_app/verify_database.sh
+
 
       - name: Verify database population
         id: verify_db_pop
-        run: ./auction_project/.github/workflows/verify_database.sh
+        run: ./auction_app/verify_database.sh
+
 
       - name: Check verification status
         if: steps.verify_db_pop.outputs.populated == 'true'
