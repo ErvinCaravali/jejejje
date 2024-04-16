@@ -6,14 +6,12 @@ on:
       - main
 
 jobs:
-  
-verify_database_population:
-    
+  verify_database_population:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - name: Set execute permissions
         run: chmod +x ./auction_app/verify_database.sh
 
