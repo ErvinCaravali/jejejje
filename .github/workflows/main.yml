@@ -42,13 +42,13 @@ jobs:
         run: |
           CONTAINER_ID=$(docker-compose ps -q db)
           CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_ID)
-          if psql -h $CONTAINER_IP -U postgres -d projecto -c "SELECT 1" > /dev/null; then
+          if PGPASSWORD=$DATABASE_PASSWORD psql -h $CONTAINER_IP -U postgres -d projecto -c "SELECT 1" > /dev/null; then
               echo "La base de datos está accesible"
           else
               echo "Error: La base de datos no está accesible"
               exit 1
           fi
-
+      
       - name: Check if tables are populated
         run: |
           tables=("auctions" "artworks" "customers" "bids" "admins")
