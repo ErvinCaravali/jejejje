@@ -1,10 +1,9 @@
-name: Check Docker Compose Volumes
+name: push
 
 on:
-  push:
+  pull_request:
     branches:
       - main
-
 jobs:
   check_volumes:
     runs-on: ubuntu-latest
