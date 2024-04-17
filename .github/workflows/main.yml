@@ -24,7 +24,7 @@ jobs:
         run: |
           docker-compose exec -T db sh -c "PGPASSWORD='${PGADMIN_DEFAULT_PASSWORD}' psql -U 'postgres' -h '${DATABASE_HOST}' -d '${DATABASE_NAME}' "
           docker-compose exec -T db sh -c "chmod +x verify_database.sh"
-          docker-compose exec -T db sh -c "./auction_app/verify_database.sh"
+          docker-compose exec -T db sh -c "auction_app/verify_database.sh"
       
       
       - name: Stop Docker services
