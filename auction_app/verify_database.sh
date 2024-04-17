@@ -1,32 +1,23 @@
 #!/bin/bash
 
-# Crear la red si aún no existe
-docker network inspect mi-red >/dev/null 2>&1 || docker network create mi-red
+# Establecer variables de conexión a la base de datos
+DB_HOST="db"
+DB_PORT="5432"
+DB_NAME="projecto"
+DB_USER="postgres"
+DB_PASSWORD="Ec94"
 
-# Iniciar un contenedor temporal basado en la imagen especificada
-container_id=$(docker run -d -p 5433:5432 --name db --network mi-red ervincaravaliibarra/bdgaleria-8:latest)
+# Verificar si las tablas existen en la base de datos
+tables_exist() {
+    psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "\dt $1" | grep -q "No matching relations found"
+    return $?
+}
 
-# Esperar un breve tiempo para que el contenedor se inicie completamente
-sleep 10
-
-# Consulta SQL para contar registros en cada tabla
-count_auctions=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM auctions;")
-count_artworks=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM artworks;")
-count_customers=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM customers;")
-count_bids=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM bids;")
-count_admins=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM admins;")
-
-# Verificar si alguna tabla está vacía
-if [[ "$count_auctions" -eq 0 || "$count_artworks" -eq 0 || "$count_customers" -eq 0 || "$count_bids" -eq 0 || "$count_admins" -eq 0 ]]; then
-    echo "One or more tables are not populated."
-    # Detener y eliminar el contenedor temporal
-    docker stop "$container_id" >/dev/null
-    docker rm "$container_id" >/dev/null
-    exit 1
-else
-    echo "All tables are populated."
-    # Detener y eliminar el contenedor temporal
-    docker stop "$container_id" >/dev/null
-    docker rm "$container_id" >/dev/null
+# Verificar la existencia de las tablas específicas
+if tables_exist "auctions" && tables_exist "artworks" && tables_exist "customers" && tables_exist "bids" && tables_exist "admins"; then
+    echo "Las tablas requeridas existen en la base de datos."
     exit 0
+else
+    echo "Una o más tablas requeridas no existen en la base de datos."
+    exit 1
 fi
