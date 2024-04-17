@@ -30,6 +30,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Create Docker network if not exists
+        run: docker network inspect mi-red >/dev/null || docker network create mi-red
+
       - name: Start Docker services
         run: |
           docker-compose up -d
