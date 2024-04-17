@@ -1,28 +1,32 @@
 #!/bin/bash
 
-#!/bin/bash
+# Crear la red si aún no existe
+docker network inspect mi-red >/dev/null 2>&1 || docker network create mi-red
 
-# Función para verificar si las tablas existen en la base de datos
-tables_exist() {
-    psql -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER -d $DATABASE_NAME -c "\dt $1" | grep -q "No matching relations found"
-    return $?
-}
+# Iniciar un contenedor temporal basado en la imagen especificada
+container_id=$(docker run -d -p 5433:5432 --name db --network mi-red ervincaravaliibarra/bdgaleria-8:latest)
 
-# Esperar a que el servicio de base de datos esté disponible
-wait_for_db() {
-    while ! psql -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER -c "SELECT 1;" > /dev/null 2>&1; do
-        echo "Esperando que el servicio de base de datos esté disponible..."
-        sleep 1
-    done
-}
+# Esperar un breve tiempo para que el contenedor se inicie completamente
+sleep 10
 
-# Verificar la existencia de las tablas específicas después de esperar a que la base de datos esté disponible
-wait_for_db
-if tables_exist "tabla1" && tables_exist "tabla2"; then
-    echo "Las tablas requeridas existen en la base de datos."
-    exit 0
-else
-    echo "Una o más tablas requeridas no existen en la base de datos."
+# Consulta SQL para contar registros en cada tabla
+count_auctions=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM auctions;")
+count_artworks=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM artworks;")
+count_customers=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM customers;")
+count_bids=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM bids;")
+count_admins=$(docker exec "$container_id" psql -U postgres -d projecto -t -c "SELECT COUNT(*) FROM admins;")
+
+# Verificar si alguna tabla está vacía
+if [[ "$count_auctions" -eq 0 || "$count_artworks" -eq 0 || "$count_customers" -eq 0 || "$count_bids" -eq 0 || "$count_admins" -eq 0 ]]; then
+    echo "One or more tables are not populated."
+    # Detener y eliminar el contenedor temporal
+    docker stop "$container_id" >/dev/null
+    docker rm "$container_id" >/dev/null
     exit 1
+else
+    echo "All tables are populated."
+    # Detener y eliminar el contenedor temporal
+    docker stop "$container_id" >/dev/null
+    docker rm "$container_id" >/dev/null
+    exit 0
 fi
-
