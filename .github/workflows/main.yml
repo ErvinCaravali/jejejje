@@ -21,17 +21,27 @@ jobs:
 
       # Ejecutar las migraciones de Django
       - name: Run Django migrations
-        run: |
-          docker-compose exec web python manage.py migrate
+        run: docker-compose exec -T web python manage.py migrate
 
+      # Crear superusuario
+      - name: Create superuser
+        env:
+          DJANGO_SUPERUSER_USERNAME: admin
+          DJANGO_SUPERUSER_EMAIL: admin@example.com
+          DJANGO_SUPERUSER_PASSWORD: password123
+        run: docker-compose exec -T web python manage.py createsuperuser --noinput
+
+      # Verificar la población de la base de datos
       - name: Verify database population
         id: verify_db_pop
         run: ./auction_app/verify_database.sh
 
+      # Verificar el estado de verificación
       - name: Check verification status
         if: steps.verify_db_pop.outputs.populated == 'true'
         run: echo "All tables are populated. Continue with the workflow."
 
+      # Detener el flujo de trabajo si la verificación falla
       - name: Verification failed
         if: steps.verify_db_pop.outputs.populated == 'false'
         run: |
@@ -40,7 +50,7 @@ jobs:
 
   push:
     runs-on: ubuntu-latest
-    needs: build_and_run_container  # Wait for build and verification to complete before starting
+    needs: build_and_run_container  # Esperar a que la construcción y la verificación se completen antes de comenzar
 
     steps:
       - name: Checkout code
@@ -49,19 +59,19 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-      # Tag and push the image for the web service
+      # Etiquetar y subir la imagen del servicio web
       - name: Tag and push web service image
         run: |
           docker tag ervincaravaliibarra/galeria-8:latest ${{ secrets.DOCKER_USERNAME }}/galeria-8-web:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/galeria-8-web:latest
 
-      # Tag and push the image for the database service
+      # Etiquetar y subir la imagen del servicio de base de datos
       - name: Tag and push database service image
         run: |
           docker tag ervincaravaliibarra/bdgaleria-8:latest ${{ secrets.DOCKER_USERNAME }}/galeria-8-db:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/galeria-8-db:latest
 
-      # Tag and push the image for the pgAdmin service
+      # Etiquetar y subir la imagen del servicio de pgAdmin
       - name: Tag and push pgAdmin service image
         run: |
           docker tag ervincaravaliibarra/pgadmin-galeria-8:latest ${{ secrets.DOCKER_USERNAME }}/galeria-8-pgadmin:latest
