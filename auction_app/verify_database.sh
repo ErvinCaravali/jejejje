@@ -11,7 +11,7 @@ CUSTOMERS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM customers) THEN '' ELSE 
 BIDS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM bids) THEN '' ELSE 'Advertencia: La tabla bids está vacía' END;"
 ADMINS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM admins) THEN '' ELSE 'Advertencia: La tabla admins está vacía' END;"
 
-# Ejecuta las consultas SQL y muestra los resultados
+# Ejecuta las consultas SQL y muestra los resultado
 echo "Verificación de tablas en la base de datos:"
 echo "------------------------------------------"
 echo "Tabla auctions: $(psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "$AUCTIONS_QUERY")"
