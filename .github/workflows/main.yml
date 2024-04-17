@@ -1,4 +1,4 @@
-name: Check if tables are populated
+name: Docker Compose Persistence Test
 
 on:
   push:
@@ -36,11 +36,11 @@ jobs:
           docker-compose ps
 
       - name: Wait for services to start
-        run: sleep 30  # Wait 30 seconds to ensure services are fully started
+        run: sleep 30  # Espera 30 segundos para asegurarse de que los servicios estén completamente iniciados
 
-      - name: Enter container and check tables
+      - name: Enter db service container and check tables
         run: |
-          docker exec -it db bash -c '
+          docker-compose exec db bash -c '
             ls &&
             find / -name psql &&
             /usr/bin/psql -U postgres -d projecto -c "\dt" &&
