@@ -17,7 +17,7 @@ tables_exist() {
 wait_for_db() {
     while ! pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER > /dev/null 2>&1; do
         echo "Esperando que el servicio de base de datos esté disponible..."
-        sleep 10
+        sleep 1
     done
 }
 
