@@ -1,21 +1,16 @@
 #!/bin/bash
 
-# Establecer variables de conexión a la base de datos
-DB_HOST="db"
-DB_PORT="5432"
-DB_NAME="projecto"
-DB_USER="postgres"
-DB_PASSWORD="Ec94"
+#!/bin/bash
 
 # Función para verificar si las tablas existen en la base de datos
 tables_exist() {
-    psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "\dt $1" | grep -q "No matching relations found"
+    psql -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER -d $DATABASE_NAME -c "\dt $1" | grep -q "No matching relations found"
     return $?
 }
 
 # Esperar a que el servicio de base de datos esté disponible
 wait_for_db() {
-    while ! psql -h $DB_HOST -p $DB_PORT -U $DB_USER -c "SELECT 1;" > /dev/null 2>&1; do
+    while ! psql -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER -c "SELECT 1;" > /dev/null 2>&1; do
         echo "Esperando que el servicio de base de datos esté disponible..."
         sleep 1
     done
