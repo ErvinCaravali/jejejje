@@ -2,9 +2,9 @@ name: Docker Compose Persistence Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test-persistence:
@@ -30,9 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Create Docker network if not exists
-        run: docker network inspect mi-red >/dev/null || docker network create mi-red
-
       - name: Start Docker services
         run: |
           docker-compose up -d
@@ -40,6 +37,15 @@ jobs:
 
       - name: Wait for services to start
         run: sleep 30  # Espera 30 segundos para asegurarse de que los servicios estén completamente iniciados
+
+      - name: Check if network exists
+        run: |
+          if docker network inspect mi-red &> /dev/null; then
+              echo "La red 'mi-red' ya existe."
+          else
+              echo "Creando la red 'mi-red'..."
+              docker network create mi-red
+          fi
 
       - name: Verify container network
         run: |
@@ -54,7 +60,8 @@ jobs:
       
       - name: Check if database is accessible
         run: |
-          if PGPASSWORD=Ec94 psql -h db -p 5432 -U postgres -d projecto -c "SELECT 1" > /dev/null; then
+          CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' db)
+          if PGPASSWORD=Ec94 psql -h $CONTAINER_IP -p 5433 -U postgres -d projecto -c "SELECT 1" > /dev/null; then
               echo "La base de datos está accesible"
           else
               echo "Error: La base de datos no está accesible"
