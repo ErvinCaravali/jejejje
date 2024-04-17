@@ -40,7 +40,7 @@ jobs:
 
       - name: Check if database is accessible
         run: |
-          if PGPASSWORD=Ec94 psql -h db -p 5433:5432 -U postgres -d projecto -c "SELECT 1" > /dev/null; then
+          if PGPASSWORD=Ec94 psql -h db -p 5433 -U postgres -d projecto -c "SELECT 1" > /dev/null; then
               echo "La base de datos está accesible"
           else
               echo "Error: La base de datos no está accesible"
