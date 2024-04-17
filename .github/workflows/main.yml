@@ -1,46 +1,49 @@
-name: Docker Compose Connectivity Check
+name: push
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  connectivity-check:
+  verify_database_population:
     runs-on: ubuntu-latest
-    
-    services:
-      docker:
-        image: docker:latest
-        options: --privileged
-          
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
-        
-      - name: Log in to Docker Hub
-        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        
-      - name: Build Docker images
-        run: docker-compose build
-        
-      - name: Start services
-        run: docker-compose up -d
-        
-      - name: Check web service connectivity to database
+
+      - name: Set execute permissions
+        run: chmod +x ./auction_app/verify_database.sh
+
+      - name: Verify database population
+        id: verify_db_pop
+        run: ./auction_app/verify_database.sh
+        env:
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+
+      - name: Check verification status
+        if: steps.verify_db_pop.outcome == 'success'
+        run: echo "All tables are populated. Continue with the workflow."
+
+      - name: Verification failed
+        if: steps.verify_db_pop.outcome != 'success'
         run: |
-          DATABASE_USER=$DATABASE_USER
-          DATABASE_NAME=$DATABASE_NAME
-          docker-compose exec web sh -c "sleep 10 && psql -h $DATABASE_HOST -U $DATABASE_USER $DATABASE_NAME"
-        
-      - name: Check pgadmin connectivity to database
+          echo "One or more tables are not populated. Halting the workflow."
+          exit 1
+
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build and push images
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          DATABASE_USER=$DATABASE_USER
-          DATABASE_NAME=$DATABASE_NAME
-          docker-compose exec pgadmin sh -c "sleep 10 && psql -h $DATABASE_HOST -U $DATABASE_USER $DATABASE_NAME"
-        
-      - name: Stop services
-        run: docker-compose down
+          docker-compose build
+          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+          docker-compose push
