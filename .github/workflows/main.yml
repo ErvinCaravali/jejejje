@@ -16,7 +16,7 @@ jobs:
         options: --privileged
         ports:
           - 8000:8000
-          - 5432:5432
+          - 5433:5432
           - 90:80
         env:
           DATABASE_HOST: db
