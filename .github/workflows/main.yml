@@ -1,4 +1,4 @@
-name: Docker Compose Persistence Test
+name: Check if tables are populated
 
 on:
   push:
@@ -36,18 +36,22 @@ jobs:
           docker-compose ps
 
       - name: Wait for services to start
-        run: sleep 30  # Espera 30 segundos para asegurarse de que los servicios estén completamente iniciados
+        run: sleep 30  # Wait 30 seconds to ensure services are fully started
 
-      - name: Check if tables are populated
+      - name: Enter container and check tables
         run: |
-          tables=("auctions" "artworks" "customers" "bids" "admins")
-          for table in "${tables[@]}"; do
-              if psql -h $DATABASE_HOST -U $DATABASE_USER -d $DATABASE_NAME -c "SELECT COUNT(*) FROM $table" | grep -q "[1-9][0-9]*"; then
-                  echo "La tabla $table está poblada"
+          docker exec -it db bash -c '
+            ls &&
+            find / -name psql &&
+            /usr/bin/psql -U postgres -d projecto -c "\dt" &&
+            for table in "auctions" "artworks" "customers" "bids" "admins"; do
+              if /usr/bin/psql -U postgres -d projecto -c "SELECT COUNT(*) FROM $table" | grep -q "[1-9][0-9]*"; then
+                echo "La tabla $table está poblada"
               else
-                  echo "Advertencia: La tabla $table está vacía"
+                echo "Advertencia: La tabla $table está vacía"
               fi
-          done
+            done
+          '
 
       - name: Stop Docker services
         run: docker-compose down
