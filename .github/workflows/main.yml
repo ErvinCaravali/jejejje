@@ -6,9 +6,35 @@ on:
       - main
 
 jobs:
+  verify_database_population:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set execute permissions
+        run: chmod +x ./auction_app/verify_database.sh
+
+      - name: Verify database population
+        id: verify_db_pop
+        run: ./auction_app/verify_database.sh
+        env:
+          DATABASE_USER: postgres
+          DATABASE_HOST: 172.20.0.2
+          DATABASE_NAME: projecto
+
+      - name: Check verification status
+        if: steps.verify_db_pop.outcome == 'success'
+        run: echo "All tables are populated. Continue with the workflow."
+
+      - name: Verification failed
+        if: steps.verify_db_pop.outcome != 'success'
+        run: |
+          echo "One or more tables are not populated. Halting the workflow."
+          exit 1
+
   build_and_push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

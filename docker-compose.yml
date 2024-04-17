@@ -9,13 +9,14 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: ervincaravaliibarra/galeria-8:latest
+    image: ervincaravaliibarra/galeria-9:latest
     restart: always
     command: sh -c "sleep 10 && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     volumes:
       - .:/code
+      - web_data_volume:/code/data  # Agrega este volumen para persistencia en web
     depends_on:
       - db
     environment:
@@ -32,7 +33,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.db
-    image: ervincaravaliibarra/bdgaleria-8:latest
+    image: ervincaravaliibarra/bdgaleria-9:latest
     environment:
         DATABASE_NAME: ${DATABASE_NAME}
         DATABASE_USER: ${DATABASE_USER}
@@ -48,7 +49,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.pgadmin
-    image: ervincaravaliibarra/pgadmin-galeria-8:latest
+    image: ervincaravaliibarra/pgadmin-galeria-9:latest
     environment:
         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
@@ -64,3 +65,4 @@ services:
 volumes:
   db_data_volume:
   pgadmin_data:
+  web_data_volume:  # Definición del volumen para
