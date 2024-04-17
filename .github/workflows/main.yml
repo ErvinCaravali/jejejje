@@ -19,9 +19,9 @@ jobs:
         id: verify_db_pop
         run: ./auction_app/verify_database.sh
         env:
-          DATABASE_USER: postgres
+          DATABASE_USER: ${DATABASE_USER}
           IP: ${IP}
-          DATABASE_NAME: projecto
+          DATABASE_NAME: ${DATABASE_NAME}
 
       - name: Check verification status
         if: steps.verify_db_pop.outcome == 'success'
