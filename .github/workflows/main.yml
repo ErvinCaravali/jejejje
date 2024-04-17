@@ -22,7 +22,7 @@ jobs:
 
       - name: Check if tables are populated
         run: |
-          docker-compose exec -T db sh -c "PGPASSWORD='${DATABASE_PASSWORD}' psql -U '${DATABASE_USER}' -h '${DATABASE_HOST}' -d '${DATABASE_NAME}' -c \"SELECT CASE WHEN EXISTS (SELECT 1 FROM auctions) THEN '' ELSE 'Advertencia: La tabla auctions está vacía' END AS auctions, CASE WHEN EXISTS (SELECT 1 FROM artworks) THEN '' ELSE 'Advertencia: La tabla artworks está vacía' END AS artworks, CASE WHEN EXISTS (SELECT 1 FROM customers) THEN '' ELSE 'Advertencia: La tabla customers está vacía' END AS customers, CASE WHEN EXISTS (SELECT 1 FROM bids) THEN '' ELSE 'Advertencia: La tabla bids está vacía' END AS bids, CASE WHEN EXISTS (SELECT 1 FROM admins) THEN '' ELSE 'Advertencia: La tabla admins está vacía' END AS admins;\""
+          docker-compose exec -T db sh -c "PGPASSWORD='postgres' psql -U '${DATABASE_USER}' -h '${DATABASE_HOST}' -d '${DATABASE_NAME}' -c \"SELECT CASE WHEN EXISTS (SELECT 1 FROM auctions) THEN '' ELSE 'Advertencia: La tabla auctions está vacía' END AS auctions, CASE WHEN EXISTS (SELECT 1 FROM artworks) THEN '' ELSE 'Advertencia: La tabla artworks está vacía' END AS artworks, CASE WHEN EXISTS (SELECT 1 FROM customers) THEN '' ELSE 'Advertencia: La tabla customers está vacía' END AS customers, CASE WHEN EXISTS (SELECT 1 FROM bids) THEN '' ELSE 'Advertencia: La tabla bids está vacía' END AS bids, CASE WHEN EXISTS (SELECT 1 FROM admins) THEN '' ELSE 'Advertencia: La tabla admins está vacía' END AS admins;\""
 
       - name: Stop Docker services
         run: docker-compose down
