@@ -1,31 +1,46 @@
-name: Check Database Tables
+name: Docker Compose Connectivity Check
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  check-database:
+  connectivity-check:
     runs-on: ubuntu-latest
-
+    
+    services:
+      docker:
+        image: docker:latest
+        options: --privileged
+          
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - name: Start Docker services
+        
+      - name: Log in to Docker Hub
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        
+      - name: Build Docker images
+        run: docker-compose build
+        
+      - name: Start services
         run: docker-compose up -d
-
-      - name: Wait for services to start
-        run: sleep 30
-
-      - name: Run database verification script
+        
+      - name: Check web service connectivity to database
         run: |
-          docker-compose exec -T db sh -c "PGPASSWORD='${PGADMIN_DEFAULT_PASSWORD}' psql -U 'postgres' -h '${DATABASE_HOST}' -d '${DATABASE_NAME}' "
-          docker-compose exec -T db sh -c "chmod +x verify_database.sh"
-          ".github/workflows/verify_database.sh"
-      
-      
-      - name: Stop Docker services
+          DATABASE_USER=$DATABASE_USER
+          DATABASE_NAME=$DATABASE_NAME
+          docker-compose exec web sh -c "sleep 10 && psql -h $DATABASE_HOST -U $DATABASE_USER $DATABASE_NAME"
+        
+      - name: Check pgadmin connectivity to database
+        run: |
+          DATABASE_USER=$DATABASE_USER
+          DATABASE_NAME=$DATABASE_NAME
+          docker-compose exec pgadmin sh -c "sleep 10 && psql -h $DATABASE_HOST -U $DATABASE_USER $DATABASE_NAME"
+        
+      - name: Stop services
         run: docker-compose down
