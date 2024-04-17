@@ -1,4 +1,4 @@
-name: push
+name: Check Docker Compose Volumes
 
 on:
   pull_request:
@@ -6,44 +6,55 @@ on:
       - main
 
 jobs:
-  verify_database_population:
+  check_volumes:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set execute permissions
-        run: chmod +x ./auction_app/verify_database.sh
+    - name: Install dependencies and Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker.io curl
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Verify database population
-        id: verify_db_pop
-        run: ./auction_app/verify_database.sh
-        env:
-          DATABASE_USER: postgres
-          DATABASE_HOST: 172.20.0.2
-          DATABASE_NAME: projecto
+    - name: Remove conflicting containerd package
+      run: sudo apt-get remove -y containerd
 
-      - name: Check verification status
-        if: steps.verify_db_pop.outcome == 'success'
-        run: echo "All tables are populated. Continue with the workflow."
+    - name: Install containerd.io
+      run: |
+        sudo apt-get install -y containerd.io
 
-      - name: Verification failed
-        if: steps.verify_db_pop.outcome != 'success'
-        run: |
-          echo "One or more tables are not populated. Halting the workflow."
+    - name: Validate Docker Compose
+      run: docker-compose config -q
+
+    - name: Check for missing volumes
+      id: check_volumes
+      run: |
+        MISSING_VOLUMES=0
+        SERVICES=$(docker-compose config --services)
+        for SERVICE in $SERVICES; do
+          if ! docker-compose config | grep "volumes:" -A 1 | grep -q "$SERVICE"; then
+            echo "Missing volumes for service: $SERVICE"
+            MISSING_VOLUMES=$((MISSING_VOLUMES + 1))
+          fi
+        done
+
+        if [ $MISSING_VOLUMES -gt 0 ]; then
+          echo "::error::There are missing volumes in the Docker Compose file."
           exit 1
+        else
+          echo "All services have volumes defined."
+        fi
 
-  build_and_push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build and push images
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          docker-compose build
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker-compose push
+    - name: Build and push images if volumes are defined
+      if: ${{ success() }}
+      run: |
+        docker-compose build
+        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        docker-compose push
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
