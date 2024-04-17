@@ -1,9 +1,10 @@
-name: push
+name: Check Docker Compose Volumes
 
 on:
   pull_request:
     branches:
       - main
+
 jobs:
   check_volumes:
     runs-on: ubuntu-latest
@@ -12,13 +13,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install Docker CLI
+    - name: Install dependencies and Docker Compose
       run: |
         sudo apt-get update
-        sudo apt-get install -y docker.io
-
-    - name: Install Docker Compose
-      run: |
+        sudo apt-get install -y docker.io curl
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
