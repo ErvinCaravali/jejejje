@@ -19,12 +19,16 @@ jobs:
           docker-compose up -d
           docker-compose ps
 
-      - name: Wait for services to start
-        run: sleep 30  # Espera 30 segundos para asegurarse de que los servicios estén completamente iniciados
+      - name: Wait for database container to start
+        run: |
+          until docker-compose exec db bash -c 'echo "Conexión establecida"'; do
+            echo "Esperando a que la base de datos esté disponible..."
+            sleep 1
+          done
 
       - name: Enter container and check tables
         run: |
-          docker exec -it db bash -c '
+          docker-compose exec db bash -c '
             ls &&
             find / -name psql &&
             /usr/bin/psql -U postgres -d projecto -c "\dt" &&
