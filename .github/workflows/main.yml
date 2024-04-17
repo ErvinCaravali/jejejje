@@ -1,43 +1,56 @@
-name: CI
+name: Check Docker Compose Volumes
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
 jobs:
-  verify_and_build:
+  check_volumes:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      # Este paso obtiene la dirección IP del servicio "db" y la guarda en una variable
-      - name: Get Docker container IP
-        id: get_container_ip
-        run: |
-          CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'172.20.0.2
-          )
-          echo "::set-output name=container_ip::$CONTAINER_IP"
+    - name: Install Docker CLI
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker.io
 
-      - name: Set execute permissions
-        run: chmod +x ./auction_app/verify_database.sh
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
 
-      # En este paso, utilizamos la dirección IP obtenida en el paso anterior para la verificación de la base de datos
-      - name: Verify database population
-        id: verify_db_pop
-        env:
-          DATABASE_USER: postgres
-          DATABASE_HOST: ${{ steps.get_container_ip.outputs.container_ip }}
-          DATABASE_NAME: projecto
-        run: ./auction_app/verify_database.sh
+    - name: Validate Docker Compose
+      run: docker-compose config -q
 
-      - name: Build and push images
-        if: ${{ steps.verify_db_pop.outcome == 'success' }}
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          docker-compose build
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker-compose push
+    - name: Check for missing volumes
+      id: check_volumes
+      run: |
+        MISSING_VOLUMES=0
+        SERVICES=$(docker-compose config --services)
+        for SERVICE in $SERVICES; do
+          if ! docker-compose config | grep "volumes:" -A 1 | grep -q "$SERVICE"; then
+            echo "Missing volumes for service: $SERVICE"
+            MISSING_VOLUMES=$((MISSING_VOLUMES + 1))
+          fi
+        done
+
+        if [ $MISSING_VOLUMES -gt 0 ]; then
+          echo "::error::There are missing volumes in the Docker Compose file."
+          exit 1
+        else
+          echo "All services have volumes defined."
+        fi
+
+    - name: Build and push images if volumes are defined
+      if: ${{ success() }}
+      run: |
+        docker-compose build
+        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        docker-compose push
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
