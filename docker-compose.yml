@@ -38,7 +38,7 @@ services:
         DATABASE_USER: ${DATABASE_USER}
         DATABASE_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - "5433:5432"
+      - "5432:5432"  # Cambio aquí: usar el puerto 5432 para el contenedor de la base de datos
     volumes:
       - db_data_volume:/var/lib/postgresql/data
     networks:
