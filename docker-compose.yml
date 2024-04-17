@@ -65,4 +65,4 @@ services:
 volumes:
   db_data_volume:
   pgadmin_data:
-  web_data_volume:  # Definición del volumen para we
+  web_data_volume:  # Definición del volumen para
