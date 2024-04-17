@@ -16,9 +16,10 @@ jobs:
       - name: Start Docker
         run: sudo systemctl start docker
 
+      # Build and run container
       - name: Build and run container
         id: build_and_run
-        run: docker-compose up -d
+        run: docker-compose -f docker-compose.yml -p my_project_name up -d  # Asigna el nombre "my_project_name" al proyecto
 
       # Ejecutar las migraciones de Django
       - name: Run Django migrations
@@ -41,7 +42,7 @@ jobs:
         if: ${{ steps.create_superuser.outcome == 'success' }}
         id: verify_db_pop
         run: |
-          DB_CONTAINER_NAME="db"  # Cambiar al nombre del contenedor de la base de datos
+          DB_CONTAINER_NAME="my_project_name_db"  # Usa el mismo nombre del proyecto y agrega "_db"
           CONTAINER_RUNNING=$(docker inspect -f '{{.State.Running}}' "$DB_CONTAINER_NAME" 2>/dev/null)
           
           if [ "$CONTAINER_RUNNING" == "true" ]; then
