@@ -83,7 +83,7 @@ DATABASES = {
         'USER': os.environ.get('DATABASE_USER', 'postgres'),
         'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'Ec94'),
         'HOST': os.environ.get('DATABASE_HOST', 'db'),
-        'PORT': os.environ.get('DATABASE_PORT', '5433'),  # Aquí se ajusta el puerto a 5433
+        'PORT': os.environ.get('DATABASE_PORT', '5432'),  # Aquí se ajusta el puerto a 5433
     }
 }
 
