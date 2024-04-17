@@ -20,7 +20,7 @@ jobs:
         run: ./auction_app/verify_database.sh
         env:
           DATABASE_USER: postgres
-          DATABASE_HOST: 5432
+          DATABASE_HOST: 172.20.0.2 
           DATABASE_NAME: projecto
 
       - name: Check verification status
