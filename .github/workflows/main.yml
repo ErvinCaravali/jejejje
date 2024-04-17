@@ -1,4 +1,4 @@
-name: push
+name: CI
 
 on:
   pull_request:
@@ -6,40 +6,33 @@ on:
       - main
 
 jobs:
-  verify_database_population:
+  verify_and_build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      # Este paso obtiene la dirección IP del servicio "db" y la guarda en una variable
+      - name: Get Docker container IP
+        id: get_container_ip
+        run: |
+          CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' db)
+          echo "::set-output name=container_ip::$CONTAINER_IP"
 
       - name: Set execute permissions
         run: chmod +x ./auction_app/verify_database.sh
 
+      # En este paso, utilizamos la dirección IP obtenida en el paso anterior para la verificación de la base de datos
       - name: Verify database population
         id: verify_db_pop
-        run: ./auction_app/verify_database.sh
         env:
           DATABASE_USER: postgres
-          DATABASE_HOST: 172.20.0.2
+          DATABASE_HOST: ${{ steps.get_container_ip.outputs.container_ip }}
           DATABASE_NAME: projecto
-
-      - name: Check verification status
-        if: steps.verify_db_pop.outcome == 'success'
-        run: echo "All tables are populated. Continue with the workflow."
-
-      - name: Verification failed
-        if: steps.verify_db_pop.outcome != 'success'
-        run: |
-          echo "One or more tables are not populated. Halting the workflow."
-          exit 1
-
-  build_and_push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+        run: ./auction_app/verify_database.sh
 
       - name: Build and push images
+        if: ${{ steps.verify_db_pop.outcome == 'success' }}
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
