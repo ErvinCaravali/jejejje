@@ -10,22 +10,6 @@ jobs:
   test-persistence:
     runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:20.10.7
-        options: --privileged
-        ports:
-          - 8000:8000
-          - 5433:5432
-          - 90:80
-        env:
-          DATABASE_HOST: db
-          DATABASE_NAME: projecto
-          DATABASE_USER: postgres
-          DATABASE_PASSWORD: Ec94
-          PGADMIN_DEFAULT_EMAIL: ervin.caravali@correounivalle.edu.co
-          PGADMIN_DEFAULT_PASSWORD: Ec94
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
