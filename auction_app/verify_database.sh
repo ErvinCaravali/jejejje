@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export DATABASE_USER= postgres
-export DATABASE_HOST= 172.20.0.2
+export DATABASE_HOST=${IP}
 export DATABASE_NAME= projecto
 
 # Define las consultas SQL para verificar si las tablas están vacías
