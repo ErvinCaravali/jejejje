@@ -40,7 +40,7 @@ jobs:
 
       - name: Check if database is accessible
         run: |
-          if psql -h $DATABASE_HOST -U $DATABASE_USER -d $DATABASE_NAME -c "SELECT 1" > /dev/null; then
+          if psql -h db -U postgres -d projecto -c "SELECT 1" > /dev/null; then
               echo "La base de datos está accesible"
           else
               echo "Error: La base de datos no está accesible"
