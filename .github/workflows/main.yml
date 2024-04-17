@@ -17,14 +17,19 @@ jobs:
         run: sudo systemctl start docker
 
       - name: Build and run container
+        id: build_and_run
         run: docker-compose up -d
 
       # Ejecutar las migraciones de Django
       - name: Run Django migrations
+        if: ${{ steps.build_and_run.outcome == 'success' }}
+        id: django_migrations
         run: docker-compose exec -T web python manage.py migrate
 
       # Crear superusuario
       - name: Create superuser
+        if: ${{ steps.django_migrations.outcome == 'success' }}
+        id: create_superuser
         env:
           DJANGO_SUPERUSER_USERNAME: admin
           DJANGO_SUPERUSER_EMAIL: admin@example.com
@@ -32,21 +37,28 @@ jobs:
         run: docker-compose exec -T web python manage.py createsuperuser --username $DJANGO_SUPERUSER_USERNAME --email $DJANGO_SUPERUSER_EMAIL --noinput
 
       # Verificar la población de la base de datos
-      - name: Verify database population
+      - name: Verify Database Population
+        if: ${{ steps.create_superuser.outcome == 'success' }}
         id: verify_db_pop
-        run: ./auction_app/verify_database.sh
-
-      # Verificar el estado de verificación
-      - name: Check verification status
-        if: steps.verify_db_pop.outputs.populated == 'true'
-        run: echo "All tables are populated. Continue with the workflow."
-
-      # Detener el flujo de trabajo si la verificación falla
-      - name: Verification failed
-        if: steps.verify_db_pop.outputs.populated == 'false'
         run: |
-          echo "One or more tables are not populated. Halting the workflow."
-          exit 1
+          DB_CONTAINER_NAME="db"  # Cambiar al nombre del contenedor de la base de datos
+          CONTAINER_RUNNING=$(docker inspect -f '{{.State.Running}}' "$DB_CONTAINER_NAME" 2>/dev/null)
+          
+          if [ "$CONTAINER_RUNNING" == "true" ]; then
+            POPULATED=$(docker exec -i "$DB_CONTAINER_NAME" sh -c 'psql -U ${DATABASE_USER} -d ${DATABASE_NAME} -c "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = '\''public'\'' AND table_name != '\''schema_migrations'\'');" | grep -q "t" && echo 1 || echo 0)
+            if [ "$POPULATED" == "1" ]; then
+              echo "All tables are populated. Continue with the workflow."
+              echo "::set-output name=populated::1"
+            else
+              echo "One or more tables are not populated. Halting the workflow."
+              echo "::set-output name=populated::0"
+              exit 1
+            fi
+          else
+            echo "Database container is not running. Halting the workflow."
+            echo "::set-output name=populated::0"
+            exit 1
+          fi
 
   push:
     runs-on: ubuntu-latest
