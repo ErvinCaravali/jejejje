@@ -1,4 +1,4 @@
-name: Check if tables are populated
+name: Check Database Tables
 
 on:
   push:
@@ -7,55 +7,48 @@ on:
     branches: [main]
 
 jobs:
-  test-persistence:
+  check-database:
     runs-on: ubuntu-latest
-
-    services:
-      docker:
-        image: docker:20.10.7
-        options: --privileged
-        ports:
-          - 8000:8000
-          - 5433:5432
-          - 90:80
-        env:
-          DATABASE_HOST: db
-          DATABASE_NAME: projecto
-          DATABASE_USER: postgres
-          DATABASE_PASSWORD: Ec94
-          PGADMIN_DEFAULT_EMAIL: ervin.caravali@correounivalle.edu.co
-          PGADMIN_DEFAULT_PASSWORD: Ec94
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Start Docker services
-        run: |
-          docker-compose up -d
-          docker-compose ps
+        run: docker-compose up -d
 
-      - name: Wait for database to be available
-        run: |
-          while ! docker-compose exec db bash -c 'echo "Conexión establecida"'; do
-            echo "Esperando a que la base de datos esté disponible..."
-            sleep 5
-          done
+      - name: Wait for services to start
+        run: sleep 30
 
-      - name: Enter container and check tables
+      - name: Check if tables are populated
         run: |
-          docker exec -it db bash -c '
-            ls &&
-            find / -name psql &&
-            /usr/bin/psql -U postgres -d projecto -c "\dt" &&
-            for table in "auctions" "artworks" "customers" "bids" "admins"; do
-              if /usr/bin/psql -U postgres -d projecto -c "SELECT COUNT(*) FROM $table" | grep -q "[1-9][0-9]*"; then
-                echo "La tabla $table está poblada"
-              else
-                echo "Advertencia: La tabla $table está vacía"
-              fi
-            done
-          '
+          docker-compose exec -T db sh -c '
+            PGPASSWORD=$DATABASE_PASSWORD psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "
+            SELECT 
+              CASE 
+                WHEN EXISTS (SELECT 1 FROM auctions) THEN '' 
+                ELSE 'Advertencia: La tabla auctions está vacía' 
+              END AS auctions,
+              CASE 
+                WHEN EXISTS (SELECT 1 FROM artworks) THEN '' 
+                ELSE 'Advertencia: La tabla artworks está vacía' 
+              END AS artworks,
+              CASE 
+                WHEN EXISTS (SELECT 1 FROM customers) THEN '' 
+                ELSE 'Advertencia: La tabla customers está vacía' 
+              END AS customers,
+              CASE 
+                WHEN EXISTS (SELECT 1 FROM bids) THEN '' 
+                ELSE 'Advertencia: La tabla bids está vacía' 
+              END AS bids,
+              CASE 
+                WHEN EXISTS (SELECT 1 FROM admins) THEN '' 
+                ELSE 'Advertencia: La tabla admins está vacía' 
+              END AS admins;"'
+
+      - name: Stop Docker services
+        run: docker-compose down
+
 
       - name: Stop Docker services
         run: docker-compose down
