@@ -4,6 +4,7 @@ export DATABASE_USER=${DATABASE_USER}
 export DATABASE_HOST=${IP}
 export DATABASE_NAME=${DATABASE_NAME}
 
+
 # Define las consultas SQL para verificar si las tablas están vacías
 AUCTIONS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM auctions) THEN '' ELSE 'Advertencia: La tabla auctions está vacía' END;"
 ARTWORKS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM artworks) THEN '' ELSE 'Advertencia: La tabla artworks está vacía' END;"
