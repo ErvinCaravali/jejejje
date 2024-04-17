@@ -10,6 +10,22 @@ jobs:
   test-persistence:
     runs-on: ubuntu-latest
 
+    services:
+      docker:
+        image: docker:20.10.7
+        options: --privileged
+        ports:
+          - 8000:8000
+          - 5433:5432
+          - 90:80
+        env:
+          DATABASE_HOST: db
+          DATABASE_NAME: projecto
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: Ec94
+          PGADMIN_DEFAULT_EMAIL: ervin.caravali@correounivalle.edu.co
+          PGADMIN_DEFAULT_PASSWORD: Ec94
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -19,16 +35,16 @@ jobs:
           docker-compose up -d
           docker-compose ps
 
-      - name: Wait for database container to start
+      - name: Wait for database to be available
         run: |
-          until docker-compose exec db bash -c 'echo "Conexión establecida"'; do
+          while ! docker-compose exec db bash -c 'echo "Conexión establecida"'; do
             echo "Esperando a que la base de datos esté disponible..."
-            sleep 1
+            sleep 5
           done
 
       - name: Enter container and check tables
         run: |
-          docker-compose exec db bash -c '
+          docker exec -it db bash -c '
             ls &&
             find / -name psql &&
             /usr/bin/psql -U postgres -d projecto -c "\dt" &&
