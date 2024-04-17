@@ -38,44 +38,6 @@ jobs:
       - name: Wait for services to start
         run: sleep 30  # Espera 30 segundos para asegurarse de que los servicios estén completamente iniciados
 
-      - name: Check if network exists
-        run: |
-          if docker network inspect mi-red &> /dev/null; then
-              echo "La red 'mi-red' ya existe."
-          else
-              echo "Creando la red 'mi-red'..."
-              docker network create mi-red
-          fi
-
-      - name: Verify container network
-        run: |
-          CONTAINER_ID=$(docker-compose ps -q db)
-          NETWORK=$(docker inspect -f '{{ range .NetworkSettings.Networks }}{{ .NetworkID }}{{ end }}' $CONTAINER_ID)
-          if [ "$NETWORK" == "mi-red" ]; then
-              echo "Los contenedores están en la misma red."
-          else
-              echo "Los contenedores no están en la misma red. Corrigiendo..."
-              docker network connect mi-red $CONTAINER_ID
-          fi
-      
-      - name: Check if database is accessible
-        run: |
-            if docker-compose ps -q db >/dev/null; then
-              CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' bdgaleria-9_db_1)
-              if PGPASSWORD=Ec94 psql -h $CONTAINER_IP -p 5433 -U postgres -d projecto -c "SELECT 1" > /dev/null; then
-                  echo "La base de datos está accesible"
-              else
-                  echo "Error: La base de datos no está accesible"
-                  exit 1
-              fi
-            else
-              echo "Error: El servicio de la base de datos no está en ejecución"
-              exit 1
-            fi
-        
-        
-        
-      
       - name: Check if tables are populated
         run: |
           tables=("auctions" "artworks" "customers" "bids" "admins")
