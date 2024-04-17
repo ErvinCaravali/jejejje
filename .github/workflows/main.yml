@@ -60,7 +60,7 @@ jobs:
       
       - name: Check if database is accessible
         run: |
-            if docker-compose ps -q db >/dev/null; then
+          if docker-compose ps -q db >/dev/null; then
               CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' db)
               if PGPASSWORD=Ec94 psql -h $CONTAINER_IP -p 5433 -U postgres -d projecto -c "SELECT 1" > /dev/null; then
                   echo "La base de datos está accesible"
@@ -68,13 +68,11 @@ jobs:
                   echo "Error: La base de datos no está accesible"
                   exit 1
               fi
-            else
+          else
               echo "Error: El contenedor de la base de datos no está en ejecución"
               exit 1
-            fi
+          fi
         
-        
-      
       
       - name: Check if tables are populated
         run: |
