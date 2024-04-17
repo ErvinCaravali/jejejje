@@ -20,9 +20,11 @@ jobs:
       - name: Wait for services to start
         run: sleep 30
 
-      - name: Check if tables are populated
+      - name: Run database verification script
         run: |
           docker-compose exec -T db sh -c "PGPASSWORD='${PGADMIN_DEFAULT_PASSWORD}' psql -U 'postgres' -h '${DATABASE_HOST}' -d '${DATABASE_NAME}' -c \"SELECT ...\""
-
+          chmod +x verify_database.sh
+          docker-compose exec -T db sh -c "./verify_database.sh"
+      
       - name: Stop Docker services
         run: docker-compose down
