@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export DATABASE_USER= postgres
-export DATABASE_HOST= 172.20.0.2
-export DATABASE_NAME= projecto
+export DATABASE_USER=postgres
+export DATABASE_HOST=172.20.0.2
+export DATABASE_NAME=projecto
 
 # Define las consultas SQL para verificar si las tablas están vacías
 AUCTIONS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM auctions) THEN '' ELSE 'Advertencia: La tabla auctions está vacía' END;"
