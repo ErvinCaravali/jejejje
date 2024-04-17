@@ -15,7 +15,11 @@ jobs:
       - name: Iniciar contenedor y obtener IP
         id: container_ip
         run: |
-          CONTAINER_ID=$(docker run -d ervincaravaliibarra/bdgaleria-9:latest)
+          CONTAINER_ID=$(docker ps -qf "name=172.20.0.2")
+          if [ -z "$CONTAINER_ID" ]; then
+            echo "Error: El contenedor no está en ejecución."
+            exit 1
+          fi
           CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_ID)
           echo "La dirección IP del contenedor es: $CONTAINER_IP"
           echo "::set-output name=container_ip::$CONTAINER_IP"  # Establece la variable de salida container_ip
@@ -25,7 +29,8 @@ jobs:
 
       - name: Verify database population
         id: verify_db_pop
-        run: ./auction_app/verify_database.sh ${{ steps.container_ip.outputs.container_ip }}
+        run: |
+          ./auction_app/verify_database.sh ${{ steps.container_ip.outputs.container_ip }}
         env:
           DATABASE_USER: postgres
           DATABASE_NAME: projecto
