@@ -12,27 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Iniciar contenedor y obtener IP
-        id: container_ip
-        run: |
-          CONTAINER_ID=$(docker ps -qf "name=172.20.0.2")
-          if [ -z "$CONTAINER_ID" ]; then
-            echo "No se encontró ningún contenedor en ejecución con el nombre 172.20.0.2. Iniciando nuevo contenedor..."
-            CONTAINER_ID=$(docker run -d -p 5432:5432 --name 172.20.0.2 <imagen_del_contenedor>)
-          fi
-          CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_ID)
-          echo "La dirección IP del contenedor es: $CONTAINER_IP"
-          echo "::set-output name=container_ip::$CONTAINER_IP"  # Establece la variable de salida container_ip
-
       - name: Set execute permissions
         run: chmod +x ./auction_app/verify_database.sh
 
       - name: Verify database population
         id: verify_db_pop
-        run: |
-          ./auction_app/verify_database.sh ${{ steps.container_ip.outputs.container_ip }}
+        run: ./auction_app/verify_database.sh
         env:
           DATABASE_USER: postgres
+          DATABASE_HOST: 172.20.0.2
           DATABASE_NAME: projecto
 
       - name: Check verification status

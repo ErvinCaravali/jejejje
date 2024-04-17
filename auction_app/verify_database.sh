@@ -1,28 +1,21 @@
 #!/bin/bash
 
-# Verificar que el contenedor esté en ejecución y obtener su ID
-CONTAINER_ID=$(docker ps -qf "name=172.20.0.2")
-if [ -z "$CONTAINER_ID" ]; then
-    echo "Error: El contenedor no está en ejecución."
-    exit 1
-fi
+export DATABASE_USER= postgres
+export DATABASE_HOST= 172.20.0.2
+export DATABASE_NAME= projecto
 
-# Obtener la dirección IP del contenedor
-CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_ID)
-if [ -z "$CONTAINER_IP" ]; then
-    echo "Error: No se pudo obtener la dirección IP del contenedor."
-    exit 1
-fi
+# Define las consultas SQL para verificar si las tablas están vacías
+AUCTIONS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM auctions) THEN '' ELSE 'Advertencia: La tabla auctions está vacía' END;"
+ARTWORKS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM artworks) THEN '' ELSE 'Advertencia: La tabla artworks está vacía' END;"
+CUSTOMERS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM customers) THEN '' ELSE 'Advertencia: La tabla customers está vacía' END;"
+BIDS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM bids) THEN '' ELSE 'Advertencia: La tabla bids está vacía' END;"
+ADMINS_QUERY="SELECT CASE WHEN EXISTS (SELECT 1 FROM admins) THEN '' ELSE 'Advertencia: La tabla admins está vacía' END;"
 
-# Verificar que el servidor de la base de datos esté en ejecución
-DB_STATUS=$(docker exec $CONTAINER_ID pg_isready -h localhost -p 5432 -q)
-if [ "$DB_STATUS" != "accepting connections" ]; then
-    echo "Error: El servidor de la base de datos no está en ejecución."
-    exit 1
-fi
-
-# Mostrar la dirección IP del contenedor y la confirmación de que la base de datos está en ejecución
-echo "La dirección IP del contenedor es: $CONTAINER_IP"
-echo "El servidor de la base de datos está en ejecución."
-
-# Realizar otras tareas, como verificar la configuración de PostgreSQL, si es necesario
+# Ejecuta las consultas SQL y muestra los resultado
+echo "Verificación de tablas en la base de datos:"
+echo "------------------------------------------"
+echo "Tabla auctions: $(psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "$AUCTIONS_QUERY")"
+echo "Tabla artworks: $(psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "$ARTWORKS_QUERY")"
+echo "Tabla customers: $(psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "$CUSTOMERS_QUERY")"
+echo "Tabla bids: $(psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "$BIDS_QUERY")"
+echo "Tabla admins: $(psql -U $DATABASE_USER -h $DATABASE_HOST -d $DATABASE_NAME -c "$ADMINS_QUERY")"
