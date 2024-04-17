@@ -15,7 +15,7 @@ tables_exist() {
 
 # Esperar a que el servicio de base de datos esté disponible
 wait_for_db() {
-    while ! pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER > /dev/null 2>&1; do
+    while ! psql -h $DB_HOST -p $DB_PORT -U $DB_USER -c "SELECT 1;" > /dev/null 2>&1; do
         echo "Esperando que el servicio de base de datos esté disponible..."
         sleep 1
     done
@@ -30,3 +30,4 @@ else
     echo "Una o más tablas requeridas no existen en la base de datos."
     exit 1
 fi
+
